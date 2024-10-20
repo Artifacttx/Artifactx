@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Upload Multiple Pictures (Limit: 10)</title>
+    <title>Upload Pictures with Size Options</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -28,6 +28,13 @@
             margin: 10px auto;
         }
 
+        select {
+            padding: 10px;
+            margin-top: 10px;
+            margin-bottom: 20px;
+            width: 50%;
+        }
+
         .image-preview {
             display: flex;
             flex-wrap: wrap;
@@ -48,14 +55,50 @@
             color: red;
             margin-top: 10px;
         }
+
+        button {
+            padding: 10px 20px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
     </style>
 </head>
 <body>
     <div class="upload-container">
         <h2>Upload Your Pictures</h2>
         <p>Limit: 10 Pictures</p>
+        
+        <!-- Image Size Selection -->
+        <label for="imageSize">Choose Image Size:</label>
+        <select id="imageSize">
+            <option value="256">256x256</option>
+            <option value="512">512x512</option>
+            <option value="1024">1024x1024</option>
+        </select>
+
+        <!-- File Upload Input -->
         <input type="file" id="imageUpload" accept="image/*" multiple>
+        
+        <!-- Start Button -->
+        <button id="startButton" disabled>Start</button>
+        
+        <!-- Image Previews -->
         <div class="image-preview" id="imagePreview"></div>
+        
+        <!-- Error Message -->
         <p class="error-message" id="errorMessage"></p>
     </div>
 
@@ -63,12 +106,25 @@
         const imageUpload = document.getElementById('imageUpload');
         const imagePreview = document.getElementById('imagePreview');
         const errorMessage = document.getElementById('errorMessage');
+        const startButton = document.getElementById('startButton');
+        const imageSizeSelect = document.getElementById('imageSize');
         const maxFiles = 10;
 
+        // Enable the start button if images are selected
         imageUpload.addEventListener('change', () => {
+            if (imageUpload.files.length > 0) {
+                startButton.disabled = false;
+            } else {
+                startButton.disabled = true;
+            }
+        });
+
+        // When "Start" button is clicked, validate and display images
+        startButton.addEventListener('click', () => {
             const files = imageUpload.files;
-            imagePreview.innerHTML = ''; // Clear the previous previews
-            errorMessage.textContent = ''; // Clear any previous error messages
+            const selectedSize = imageSizeSelect.value;
+            imagePreview.innerHTML = ''; // Clear previous previews
+            errorMessage.textContent = ''; // Clear previous errors
 
             if (files.length > maxFiles) {
                 errorMessage.textContent = `You can only upload up to ${maxFiles} images.`;
@@ -82,6 +138,8 @@
                 reader.onload = function (e) {
                     const img = document.createElement('img');
                     img.src = e.target.result;
+                    img.style.width = `${selectedSize}px`;
+                    img.style.height = `${selectedSize}px`;
                     imagePreview.appendChild(img);
                 }
 
